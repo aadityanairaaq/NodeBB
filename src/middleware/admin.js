@@ -60,10 +60,9 @@ async function hasPrivilegeForPath(req, path) {
 	if (path) {
 		const privilege = privileges.admin.resolve(path);
 		return await privileges.admin.can(privilege, req.uid);
-	} else {
-		const privilegeSet = await privileges.admin.get(req.uid);
-		return Object.values(privilegeSet).some(Boolean);
 	}
+	const privilegeSet = await privileges.admin.get(req.uid);
+	return Object.values(privilegeSet).some(Boolean);
 }
 
 // Function to check if the user has a password
@@ -75,7 +74,8 @@ async function userHasPassword(req) {
 function shouldRelogin(req) {
 	const loginTime = req.session.meta ? req.session.meta.datetime : 0;
 	const adminReloginDuration = meta.config.adminReloginDuration * 60000;
-	return !(meta.config.adminReloginDuration === 0 || (loginTime && parseInt(loginTime, 10) > Date.now() - adminReloginDuration));
+	return !(meta.config.adminReloginDuration === 0 ||
+	(loginTime && parseInt(loginTime, 10) > Date.now() - adminReloginDuration));
 }
 
 // Function to handle user re-login
