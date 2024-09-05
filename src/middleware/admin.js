@@ -17,36 +17,36 @@ const middleware = module.exports;
 middleware.buildHeader = helpers.try(async (req, res, next) => {
 	res.locals.renderAdminHeader = true;
 	if (req.method === 'GET') {
-		console.log('>>Instance Ran........');
+		console.log('>>Overall Check........');
 		await require('./index').applyCSRFasync(req, res);
 	}
-	console.log('>>Instance Ran........');
+	console.log('>>Load Check........');
 	res.locals.config = await controllers.admin.loadConfig(req);
 	next();
 });
 
 middleware.checkPrivileges = helpers.try(async (req, res, next) => {
 	if (isGuest(req, res)) {
-		console.log('>>Instance Ran........');
+		console.log('>>Guest Check Ran........');
 		return;
 	}
 
 	const path = req.path.replace(/^(\/api)?(\/v3)?\/admin\/?/g, '');
 	if (!(await hasPrivilegeForPath(req, path))) {
-		console.log('>>Instance Ran........');
+		console.log('>>Prev Check Ran........');
 		return controllers.helpers.notAllowed(req, res);
 	}
 
 	if (!await userHasPassword(req)) {
-		console.log('>>Instance Ran........');
+		console.log('>>Check passwork Ran........');
 		return next();
 	}
 
 	if (shouldRelogin(req)) {
-		console.log('>>Instance Ran........');
+		console.log('>>relogin Ran........');
 		await handleRelogin(req, res);
 	} else {
-		console.log('>>Instance Ran........');
+		console.log('>>relogin Ran........');
 		extendLogoutTimer(req);
 		return next();
 	}
@@ -59,31 +59,31 @@ function isGuest(req, res) {
 		controllers.helpers.notAllowed(req, res);
 		return true;
 	}
-	console.log('>>Instance Ran........');
+	console.log('>>Guest Check Ran........');
 	return false;
 }
 
 // Function to check if the user has the necessary privilege for the requested path
 async function hasPrivilegeForPath(req, path) {
 	if (path) {
-		console.log('>>Instance Ran........');
+		console.log('>>PrevPath Check........');
 		const privilege = privileges.admin.resolve(path);
 		return await privileges.admin.can(privilege, req.uid);
 	}
-	console.log('>>Instance Ran........');
+	console.log('>>No Prev Check........');
 	const privilegeSet = await privileges.admin.get(req.uid);
 	return Object.values(privilegeSet).some(Boolean);
 }
 
 // Function to check if the user has a password
 async function userHasPassword(req) {
-	console.log('>>Instance Ran........');
+	console.log('>>Pass Check Ran........');
 	return await user.hasPassword(req.uid);
 }
 
 // Function to determine if the user needs to re-login
 function shouldRelogin(req) {
-	console.log('>>Instance Ran........');
+	console.log('>>Relog Check Ran........');
 	const loginTime = req.session.meta ? req.session.meta.datetime : 0;
 	const adminReloginDuration = meta.config.adminReloginDuration * 60000;
 	return !(meta.config.adminReloginDuration === 0 ||
@@ -92,7 +92,7 @@ function shouldRelogin(req) {
 
 // Function to handle user re-login
 async function handleRelogin(req, res) {
-	console.log('>>Instance Ran........');
+	console.log('>>HandleReLogin Ran........');
 	let returnTo = req.path;
 	if (nconf.get('relative_path')) {
 		returnTo = req.path.replace(new RegExp(`^${nconf.get('relative_path')}`), '');
