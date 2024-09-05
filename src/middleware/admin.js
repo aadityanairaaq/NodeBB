@@ -103,13 +103,11 @@ async function handleRelogin(req, res) {
 	req.session.forceLogin = 1;
 
 	await plugins.hooks.fire('response:auth.relogin', { req, res });
+	console.log('>>Instance Ran........');
 	if (!res.headersSent) {
-		console.log('>>Instance Ran........');
 		if (res.locals.isAPI) {
-			console.log('>>Instance Ran........');
 			controllers.helpers.formatApiResponse(401, res);
 		} else {
-			console.log('>>Instance Ran........');
 			res.redirect(`${nconf.get('relative_path')}/login?local=1`);
 		}
 	}
